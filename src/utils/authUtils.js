@@ -9,7 +9,7 @@ export const isLoggedIn = async () => {
   return isLoggedIn;
 };
 
-export const saveToken = async (tokenStr) => {
+export const saveToken = async tokenStr => {
   try {
     await AsyncStorage.setItem(TOKEN_STR_KEY, tokenStr);
   } catch (error) {
