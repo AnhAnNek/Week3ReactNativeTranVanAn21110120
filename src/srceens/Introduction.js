@@ -1,9 +1,8 @@
-// components/Introduction.js
 import React, { useEffect, useState } from 'react';
 import { SafeAreaView, StyleSheet, View } from 'react-native';
 import { Text, Snackbar, Button } from 'react-native-paper';
 import axios from 'axios';
-import { API_URL } from '../utils/constants'; // Ensure this points to your API URL
+import { API_URL } from '../utils/constants';
 
 function Introduction({ route, navigation }) {
     const { username } = route.params;
@@ -12,7 +11,6 @@ function Introduction({ route, navigation }) {
     const [snackbarVisible, setSnackbarVisible] = useState(false);
     const [snackbarMessage, setSnackbarMessage] = useState('');
 
-    // Function to fetch user data by username
     const fetchUserByUsername = async () => {
         if (!username) {
             setSnackbarMessage('Please enter a username.');

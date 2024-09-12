@@ -1,13 +1,12 @@
-// components/Login.js
 import React, { useState } from 'react';
 import { SafeAreaView, StyleSheet, View, TouchableOpacity } from 'react-native';
 import { TextInput, Button, Text, Snackbar } from 'react-native-paper';
-import axios from 'axios';
-import { API_URL } from '../utils/constants'; // Make sure you have the correct API_URL
+import { API_URL } from '../utils/constants';
+import {post} from '../utils/httpRequest';
 
 function Login({ navigation }) {
-    const [username, setUsername] = useState('');
-    const [password, setPassword] = useState('');
+    const [username, setUsername] = useState('vananne');
+    const [password, setPassword] = useState('P@123456');
     const [loading, setLoading] = useState(false);
     const [snackbarVisible, setSnackbarVisible] = useState(false);
     const [snackbarMessage, setSnackbarMessage] = useState('');
@@ -16,7 +15,6 @@ function Login({ navigation }) {
         console.log(`Username: ${username}`);
         console.log(`Password: ${password}`);
 
-        // Check if username and password are provided
         if (!username || !password) {
             showMessage('Please fill in both fields.');
             return;
@@ -25,17 +23,21 @@ function Login({ navigation }) {
         setLoading(true);
 
         try {
-            // Make a POST request to the login endpoint
-            const response = await axios.post(`${API_URL}/auth/login?username=${username}&password=${password}`);
+            const registerRequest = {
+                username,
+                password,
+            };
 
-            // Handle successful login
+            const response = await post(`${API_URL}/auth/generate-otp-to-login`, registerRequest);
+
             if (response.status === 200) {
-                showMessage('Login successful!', 'success');
-                navigation.navigate('Introduction', { username }); // Pass username to Introduction screen
+                const msg = response.data;
+                showMessage(msg, 'success');
+                navigation.navigate('InputOtpToLogin', { username });
             }
         } catch (error) {
-            console.log(error);
-            showMessage('Login unsuccessful!', 'error');
+            console.log(error.message);
+            showMessage(error.message, 'error');
         } finally {
             setLoading(false);
         }

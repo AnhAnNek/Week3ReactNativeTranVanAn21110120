@@ -1,10 +1,12 @@
 import React, {useState} from 'react';
 import {SafeAreaView, StyleSheet, View} from 'react-native';
 import {TextInput, Button, Snackbar, Text} from 'react-native-paper';
-import axios from 'axios';
 import {API_URL} from '../utils/constants';
+import {post, put} from '../utils/httpRequest';
+import {saveLoginResponse} from '../utils/authUtils';
 
-const InputOtpToLogin = () => {
+const InputOtpToLogin = ({ route, navigation }) => {
+  const { username } = route.params;
   const [otp, setOtp] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -15,24 +17,28 @@ const InputOtpToLogin = () => {
   };
 
   const handleSubmit = async () => {
-    if (otp.length === 6) {
+    if (otp.length === 6 && username.trim() !== '') {
       setLoading(true);
       try {
-        const response = await axios.post(`${API_URL}/login-with-otp`, {otp});
-        if (response.data.success) {
-          // Handle successful login (e.g., navigation)
+        const loginWithOtpRequest = {username, otp};
+        const response = await post(`${API_URL}/auth/login-with-otp`, loginWithOtpRequest);
+        if (response.status === 200) {
+          const loginResponse = response.data;
+          saveLoginResponse(loginResponse);
           setSnackbarVisible(true);
           setError('');
+          navigation.navigate("Introduction", { username });
         } else {
           setError('Invalid OTP, please try again.');
         }
       } catch (error) {
-        setError('Failed to connect to the server. Please try again.');
+        console.error(error?.message);
+        setError(error?.message);
       } finally {
         setLoading(false);
       }
     } else {
-      setError('Please enter a valid 6-digit OTP.');
+      setError('Please enter a valid username and a 6-digit OTP.');
     }
   };
 
@@ -41,36 +47,36 @@ const InputOtpToLogin = () => {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
-      <View style={styles.content}>
-        <Text style={styles.label}>Enter OTP to Login</Text>
-        <TextInput
-          label="OTP"
-          value={otp}
-          onChangeText={handleOtpChange}
-          keyboardType="numeric"
-          maxLength={6}
-          placeholder="Enter 6-digit OTP"
-          style={styles.input}
-          mode="outlined"
-        />
-        <Button
-          mode="contained"
-          onPress={handleSubmit}
-          loading={loading}
-          disabled={loading}
-          style={styles.button}>
-          Submit OTP
-        </Button>
-        {error ? <Text style={styles.errorText}>{error}</Text> : null}
-        <Snackbar
-          visible={snackbarVisible}
-          onDismiss={handleSnackbarDismiss}
-          duration={3000}>
-          OTP submitted successfully!
-        </Snackbar>
-      </View>
-    </SafeAreaView>
+      <SafeAreaView style={styles.container}>
+        <View style={styles.content}>
+          <Text style={styles.label}>Enter OTP to Login</Text>
+          <TextInput
+              label="OTP"
+              value={otp}
+              onChangeText={handleOtpChange}
+              keyboardType="numeric"
+              maxLength={6}
+              placeholder="Enter 6-digit OTP"
+              style={styles.input}
+              mode="outlined"
+          />
+          <Button
+              mode="contained"
+              onPress={handleSubmit}
+              loading={loading}
+              disabled={loading}
+              style={styles.button}>
+            Submit OTP
+          </Button>
+          {error ? <Text style={styles.errorText}>{error}</Text> : null}
+          <Snackbar
+              visible={snackbarVisible}
+              onDismiss={handleSnackbarDismiss}
+              duration={3000}>
+            OTP submitted successfully!
+          </Snackbar>
+        </View>
+      </SafeAreaView>
   );
 };
 

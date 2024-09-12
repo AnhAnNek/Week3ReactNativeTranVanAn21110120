@@ -1,44 +1,41 @@
-import Realm from 'realm';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
-const LOGIN_RESPONSE_SCHEMA = 'LoginResponse';
+const LOGIN_RESPONSE_KEY = 'LoginResponse';
 
-const LoginResponseSchema = {
-  name: LOGIN_RESPONSE_SCHEMA,
-  properties: {
-    tokenStr: 'string',
-  },
+export const isLoggedIn = async () => {
+  const loginResponse = await AsyncStorage.getItem(LOGIN_RESPONSE_KEY);
+  const isLoggedIn = loginResponse !== null;
+  console.log(`isLoggedIn() method: ${isLoggedIn}`);
+  return isLoggedIn;
 };
 
-const realm = new Realm({ schema: [LoginResponseSchema] });
-
-export const isLoggedIn = () => {
-  const loginResponse = realm.objects(LOGIN_RESPONSE_SCHEMA);
-  console.log(`isLoggedIn() method: ${loginResponse.length > 0}`);
-  return loginResponse.length > 0;
+export const saveLoginResponse = async (loginResponse) => {
+  try {
+    await AsyncStorage.setItem(LOGIN_RESPONSE_KEY, JSON.stringify(loginResponse));
+  } catch (error) {
+    console.error('Error saving login response', error);
+  }
 };
 
-export const saveLoginResponse = (loginResponse) => {
-  realm.write(() => {
-    const existingResponse = realm.objects(LOGIN_RESPONSE_SCHEMA);
-    realm.delete(existingResponse);
-    realm.create(LOGIN_RESPONSE_SCHEMA, {
-      tokenStr: loginResponse.tokenStr,
-    });
-  });
+export const removeLoginResponse = async () => {
+  try {
+    await AsyncStorage.removeItem(LOGIN_RESPONSE_KEY);
+  } catch (error) {
+    console.error('Error removing login response', error);
+  }
 };
 
-export const removeLoginResponse = () => {
-  realm.write(() => {
-    const loginResponse = realm.objects(LOGIN_RESPONSE_SCHEMA);
-    realm.delete(loginResponse);
-  });
-};
-
-export const getToken = () => {
-  if (!isLoggedIn()) {
+export const getToken = async () => {
+  const isLoggedInUser = await isLoggedIn();
+  if (!isLoggedInUser) {
     return null;
   }
 
-  const loginResponse = realm.objects(LOGIN_RESPONSE_SCHEMA)[0];
-  return loginResponse ? loginResponse.tokenStr : null;
+  try {
+    const loginResponse = await AsyncStorage.getItem(LOGIN_RESPONSE_KEY);
+    return loginResponse ? JSON.parse(loginResponse).tokenStr : null;
+  } catch (error) {
+    console.error('Error retrieving token', error);
+    return null;
+  }
 };
