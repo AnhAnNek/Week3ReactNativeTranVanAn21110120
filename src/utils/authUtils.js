@@ -4,7 +4,7 @@ const TOKEN_STR_KEY = 'tokenStrKey';
 
 export const isLoggedIn = async () => {
   const tokenStr = await AsyncStorage.getItem(TOKEN_STR_KEY);
-  const isLoggedIn = tokenStr !== null;
+  const isLoggedIn = tokenStr !== null && tokenStr !== '[object Object]';
   console.log(`isLoggedIn() method: ${isLoggedIn}`);
   return isLoggedIn;
 };

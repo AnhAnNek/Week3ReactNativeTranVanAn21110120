@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
+import React, {useEffect, useState} from 'react';
 import { SafeAreaView, StyleSheet, View, TouchableOpacity } from 'react-native';
 import { TextInput, Button, Text, Snackbar } from 'react-native-paper';
 import { API_URL } from '../utils/constants';
 import {post} from '../utils/httpRequest';
+import {isLoggedIn} from '../utils/authUtils';
 
 function Login({ navigation }) {
     const [username, setUsername] = useState('vananne');
@@ -47,6 +48,17 @@ function Login({ navigation }) {
         setSnackbarMessage(message);
         setSnackbarVisible(true);
     };
+
+    useEffect(() => {
+        const checkIfLoggedIn = async () => {
+            const loggedIn = await isLoggedIn();
+            if (loggedIn) {
+                navigation.navigate('Introduction');
+            }
+        };
+
+        checkIfLoggedIn();
+    }, []);
 
     return (
         <SafeAreaView style={styles.container}>

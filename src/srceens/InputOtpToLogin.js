@@ -24,13 +24,13 @@ const InputOtpToLogin = ({ route, navigation }) => {
         const response = await post(`${API_URL}/auth/login-with-otp`, loginWithOtpRequest);
         console.log(`Response status: ${response.status}`);
         if (response.status === 200) {
-          const tokenStr = response?.data?.tokenStr;
+          const tokenStr = await response?.data?.tokenStr;
           console.log(`tokenStr: ${tokenStr}`);
-          saveToken(tokenStr);
+          await saveToken(tokenStr);
 
           setSnackbarVisible(true);
           setError('');
-          navigation.navigate("Introduction", { username });
+          navigation.navigate("Introduction");
         } else {
           setError('Invalid OTP, please try again.');
         }

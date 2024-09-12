@@ -1,27 +1,21 @@
 import React, { useEffect, useState } from 'react';
-import { SafeAreaView, View } from 'react-native';
+import { SafeAreaView } from 'react-native';
 import { Text, Snackbar, Button, Card, ActivityIndicator } from 'react-native-paper';
 import { API_URL } from '../utils/constants';
-import { getToken } from '../utils/authUtils';
+import {getToken, removeToken} from '../utils/authUtils';
 import { get } from '../utils/httpRequest';
 
-function Introduction({ route, navigation }) {
-    const { username } = route.params;
+function Introduction({ navigation }) {
     const [user, setUser] = useState(null);
     const [loading, setLoading] = useState(false);
     const [snackbarVisible, setSnackbarVisible] = useState(false);
     const [snackbarMessage, setSnackbarMessage] = useState('');
 
     const fetchUserByToken = async () => {
-        if (!username) {
-            setSnackbarMessage('Please enter a username.');
-            setSnackbarVisible(true);
-            return;
-        }
-
         setLoading(true);
         try {
             const tokenStr = await getToken();
+            console.log(`Introduction - tokenStr: ${tokenStr}`);
             const response = await get(`${API_URL}/auth/get-user-by-token`, {
                 params: {
                     tokenStr,
@@ -44,6 +38,11 @@ function Introduction({ route, navigation }) {
     useEffect(() => {
         fetchUserByToken();
     }, []);
+
+    const logout = () => {
+        removeToken();
+        navigation.navigate("Login");
+    };
 
     return (
         <SafeAreaView style={{ flex: 1, justifyContent: 'center', padding: 20 }}>
@@ -81,7 +80,23 @@ function Introduction({ route, navigation }) {
                 loading={loading}
                 style={{ marginTop: 20 }}
             >
-                Fetch User
+                Reload
+            </Button>
+            <Button
+                mode="contained"
+                onPress={() => navigation.navigate("UpdateProfile")}
+                loading={loading}
+                style={{ marginTop: 20 }}
+            >
+                Navigate to Update Profile
+            </Button>
+            <Button
+                mode="contained"
+                onPress={logout}
+                loading={loading}
+                style={{ marginTop: 20 }}
+            >
+                Logout
             </Button>
             <Snackbar
                 visible={snackbarVisible}

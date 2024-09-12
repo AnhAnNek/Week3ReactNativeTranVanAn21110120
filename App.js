@@ -10,6 +10,8 @@ import ForgotPassword from './src/srceens/ForgotPassword';
 import ResetPassword from './src/srceens/ResetPassword';
 import InputOtpToActiveAccount from './src/srceens/InputOtpToActiveAccount';
 import InputOtpToLogin from './src/srceens/InputOtpToLogin';
+import InputOtpToUpdateProfile from './src/srceens/InputOtpToUpdateProfile';
+import UpdateProfile from './src/srceens/UpdateProfile';
 
 const Stack = createStackNavigator();
 
@@ -25,6 +27,8 @@ function App() {
             <Stack.Screen name="ResetPassword" component={ResetPassword} />
             <Stack.Screen name="InputOtpToActiveAccount" component={InputOtpToActiveAccount} />
             <Stack.Screen name="InputOtpToLogin" component={InputOtpToLogin} />
+            <Stack.Screen name="UpdateProfile" component={UpdateProfile} />
+            <Stack.Screen name="InputOtpToUpdateProfile" component={InputOtpToUpdateProfile} />
         </Stack.Navigator>
     </NavigationContainer>
   );
