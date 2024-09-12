@@ -3,7 +3,7 @@ import { SafeAreaView, StyleSheet, View, TouchableOpacity } from 'react-native';
 import { TextInput, Button, Text, Snackbar } from 'react-native-paper';
 import { API_URL } from '../utils/constants';
 import {post} from '../utils/httpRequest';
-import {isLoggedIn} from '../utils/authUtils';
+import {isLoggedIn, removeToken} from '../utils/authUtils';
 
 function Login({ navigation }) {
     const [username, setUsername] = useState('vananne');
@@ -13,6 +13,7 @@ function Login({ navigation }) {
     const [snackbarMessage, setSnackbarMessage] = useState('');
 
     const handleLogin = async () => {
+        removeToken();
         console.log(`Username: ${username}`);
         console.log(`Password: ${password}`);
 
@@ -22,7 +23,6 @@ function Login({ navigation }) {
         }
 
         setLoading(true);
-
         try {
             const registerRequest = {
                 username,

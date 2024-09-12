@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react';
-import {Platform, SafeAreaView, TouchableOpacity, View} from 'react-native';
+import {Platform, SafeAreaView, TouchableOpacity} from 'react-native';
 import { Text, Snackbar, Button, Card, TextInput, ActivityIndicator } from 'react-native-paper';
 import { API_URL } from '../utils/constants';
-import { getToken, updateProfileRequest } from '../utils/authUtils';
-import {get, put} from '../utils/httpRequest';
+import { getToken } from '../utils/authUtils';
+import {get, post} from '../utils/httpRequest';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import {Picker} from '@react-native-picker/picker';
 
@@ -15,6 +15,7 @@ function UpdateProfile({ navigation }) {
         phoneNumber: '',
         dob: '',
         gender: 'MALE',
+        otp: '',
     });
     const [loading, setLoading] = useState(false);
     const [snackbarVisible, setSnackbarVisible] = useState(false);
@@ -47,7 +48,7 @@ function UpdateProfile({ navigation }) {
     const handleProfileUpdate = async () => {
         setLoading(true);
         try {
-            const response = await put(`${API_URL}/auth/generate-otp-to-update-profile/${user.username}`);
+            const response = await post(`${API_URL}/auth/generate-otp-to-update-profile/${user.username}`);
             if (response.status === 200) {
                 const msg = response.data;
                 setSnackbarMessage(msg);

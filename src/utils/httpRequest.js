@@ -10,8 +10,8 @@ const httpRequest = axios.create({
 });
 
 httpRequest.interceptors.request.use(
-  (config) => {
-    const token = getToken();
+  async (config) => {
+    const token = await getToken();
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }

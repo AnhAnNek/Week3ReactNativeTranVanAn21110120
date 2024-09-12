@@ -20,10 +20,11 @@ const InputOtpToUpdateProfile = ({ route, navigation }) => {
 
         setLoading(true);
         try {
-            const editedUser = { user, otp: otp };
+            const editedUser = { ...user, otp: otp };
+            console.log(`editedUser: ${editedUser}`);
 
-            const response = await put(`${API_URL}/auth/update-user-profile-with-otp`, { editedUser });
-            if (response.data) {
+            const response = await put(`${API_URL}/auth/update-user-profile-with-otp`, editedUser);
+            if (response?.status === 200) {
                 setSnackbarMessage('Profile updated successfully!');
                 setTimeout(() => {
                     navigation.navigate('UpdateProfile');
