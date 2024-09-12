@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from 'react';
-import { SafeAreaView, StyleSheet, View } from 'react-native';
-import { Text, Snackbar, Button } from 'react-native-paper';
-import axios from 'axios';
+import { SafeAreaView, View } from 'react-native';
+import { Text, Snackbar, Button, Card, ActivityIndicator } from 'react-native-paper';
 import { API_URL } from '../utils/constants';
+import { getToken } from '../utils/authUtils';
+import { get } from '../utils/httpRequest';
 
 function Introduction({ route, navigation }) {
     const { username } = route.params;
@@ -11,28 +12,28 @@ function Introduction({ route, navigation }) {
     const [snackbarVisible, setSnackbarVisible] = useState(false);
     const [snackbarMessage, setSnackbarMessage] = useState('');
 
-    const fetchUserByUsername = async () => {
+    const fetchUserByToken = async () => {
         if (!username) {
             setSnackbarMessage('Please enter a username.');
             setSnackbarVisible(true);
             return;
         }
 
-        console.log(`Fetching username=${username}`)
-
         setLoading(true);
         try {
-            const response = await axios.get(`${API_URL}/auth/get-user/${username}`);
+            const tokenStr = await getToken();
+            const response = await get(`${API_URL}/auth/get-user-by-token`, {
+                params: {
+                    tokenStr,
+                },
+            });
             if (response.status === 200) {
-                const userData = response.data;
-                setUser(userData); // Assume response.data contains user details
-                console.log(userData);
+                setUser(response.data);
             } else {
                 setSnackbarMessage('User not found.');
                 setSnackbarVisible(true);
             }
         } catch (error) {
-            console.log(error?.message);
             setSnackbarMessage('An error occurred while fetching user data.');
             setSnackbarVisible(true);
         } finally {
@@ -41,27 +42,47 @@ function Introduction({ route, navigation }) {
     };
 
     useEffect(() => {
-        // Example: Set default username to fetch user data when component mounts
-        fetchUserByUsername();
+        fetchUserByToken();
     }, []);
 
     return (
-        <SafeAreaView style={styles.container}>
-            <Text style={styles.title}>User Information</Text>
-            <View style={styles.inputContainer}>
-                {user ? (
-                    <View style={styles.userInfo}>
-                        <Text style={styles.userText}>Full name: {user.fullName}</Text>
-                        <Text style={styles.userText}>Username: {user.username}</Text>
-                        <Text style={styles.userText}>Email: {user.email}</Text>
-                    </View>
-                ) : (
-                    <Text style={styles.messageText}>No user found. Please enter a username.</Text>
-                )}
-                <Button mode="contained" onPress={fetchUserByUsername} loading={loading} style={styles.button}>
-                    Fetch User
-                </Button>
-            </View>
+        <SafeAreaView style={{ flex: 1, justifyContent: 'center', padding: 20 }}>
+            <Text variant="headlineLarge" style={{ textAlign: 'center', marginBottom: 20 }}>
+                User Profile
+            </Text>
+            {loading ? (
+                <ActivityIndicator animating={true} />
+            ) : (
+                <Card>
+                    {user ? (
+                        <Card.Content>
+                            <Text variant="titleLarge" style={{ marginBottom: 10 }}>Full name: {user.fullName}</Text>
+                            <Text variant="bodyMedium" style={{ marginBottom: 5 }}>Username: {user.username}</Text>
+                            <Text variant="bodyMedium" style={{ marginBottom: 5 }}>Email: {user.email}</Text>
+                            <Text variant="bodyMedium" style={{ marginBottom: 5 }}>Phone Number: {user.phoneNumber}</Text>
+                            <Text variant="bodyMedium" style={{ marginBottom: 5 }}>Date of Birth: {user.dob}</Text>
+                            <Text variant="bodyMedium" style={{ marginBottom: 5 }}>Gender: {user.gender}</Text>
+                            <Text variant="bodyMedium" style={{ marginBottom: 5 }}>Role: {user.role}</Text>
+                            <Text variant="bodyMedium" style={{ marginBottom: 5 }}>Bio: {user.bio || "No bio available"}</Text>
+                            <Text variant="bodyMedium" style={{ marginBottom: 5 }}>Account Created: {new Date(user.createdAt).toLocaleDateString()}</Text>
+                        </Card.Content>
+                    ) : (
+                        <Card.Content>
+                            <Text variant="bodyMedium" style={{ textAlign: 'center' }}>
+                                No user found. Please enter a username.
+                            </Text>
+                        </Card.Content>
+                    )}
+                </Card>
+            )}
+            <Button
+                mode="contained"
+                onPress={fetchUserByToken}
+                loading={loading}
+                style={{ marginTop: 20 }}
+            >
+                Fetch User
+            </Button>
             <Snackbar
                 visible={snackbarVisible}
                 onDismiss={() => setSnackbarVisible(false)}
@@ -72,36 +93,5 @@ function Introduction({ route, navigation }) {
         </SafeAreaView>
     );
 }
-
-const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        padding: 20,
-        justifyContent: 'center',
-    },
-    title: {
-        fontSize: 28,
-        fontWeight: 'bold',
-        textAlign: 'center',
-        marginBottom: 20,
-    },
-    inputContainer: {
-        marginBottom: 20,
-    },
-    userInfo: {
-        marginBottom: 20,
-    },
-    userText: {
-        fontSize: 16,
-        marginBottom: 5,
-    },
-    messageText: {
-        textAlign: 'center',
-        color: 'gray',
-    },
-    button: {
-        marginTop: 20,
-    },
-});
 
 export default Introduction;

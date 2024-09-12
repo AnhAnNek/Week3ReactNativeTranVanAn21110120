@@ -3,7 +3,7 @@ import {SafeAreaView, StyleSheet, View} from 'react-native';
 import {TextInput, Button, Snackbar, Text} from 'react-native-paper';
 import {API_URL} from '../utils/constants';
 import {post, put} from '../utils/httpRequest';
-import {saveLoginResponse} from '../utils/authUtils';
+import {saveToken} from '../utils/authUtils';
 
 const InputOtpToLogin = ({ route, navigation }) => {
   const { username } = route.params;
@@ -22,9 +22,12 @@ const InputOtpToLogin = ({ route, navigation }) => {
       try {
         const loginWithOtpRequest = {username, otp};
         const response = await post(`${API_URL}/auth/login-with-otp`, loginWithOtpRequest);
+        console.log(`Response status: ${response.status}`);
         if (response.status === 200) {
-          const loginResponse = response.data;
-          saveLoginResponse(loginResponse);
+          const tokenStr = response?.data?.tokenStr;
+          console.log(`tokenStr: ${tokenStr}`);
+          saveToken(tokenStr);
+
           setSnackbarVisible(true);
           setError('');
           navigation.navigate("Introduction", { username });

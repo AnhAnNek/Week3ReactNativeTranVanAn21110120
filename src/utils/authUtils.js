@@ -1,25 +1,25 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-const LOGIN_RESPONSE_KEY = 'LoginResponse';
+const TOKEN_STR_KEY = 'tokenStrKey';
 
 export const isLoggedIn = async () => {
-  const loginResponse = await AsyncStorage.getItem(LOGIN_RESPONSE_KEY);
-  const isLoggedIn = loginResponse !== null;
+  const tokenStr = await AsyncStorage.getItem(TOKEN_STR_KEY);
+  const isLoggedIn = tokenStr !== null;
   console.log(`isLoggedIn() method: ${isLoggedIn}`);
   return isLoggedIn;
 };
 
-export const saveLoginResponse = async (loginResponse) => {
+export const saveToken = async (tokenStr) => {
   try {
-    await AsyncStorage.setItem(LOGIN_RESPONSE_KEY, JSON.stringify(loginResponse));
+    await AsyncStorage.setItem(TOKEN_STR_KEY, tokenStr);
   } catch (error) {
     console.error('Error saving login response', error);
   }
 };
 
-export const removeLoginResponse = async () => {
+export const removeToken = async () => {
   try {
-    await AsyncStorage.removeItem(LOGIN_RESPONSE_KEY);
+    await AsyncStorage.removeItem(TOKEN_STR_KEY);
   } catch (error) {
     console.error('Error removing login response', error);
   }
@@ -32,8 +32,7 @@ export const getToken = async () => {
   }
 
   try {
-    const loginResponse = await AsyncStorage.getItem(LOGIN_RESPONSE_KEY);
-    return loginResponse ? JSON.parse(loginResponse).tokenStr : null;
+    return await AsyncStorage.getItem(TOKEN_STR_KEY);
   } catch (error) {
     console.error('Error retrieving token', error);
     return null;
