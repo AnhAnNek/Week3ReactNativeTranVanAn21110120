@@ -30,7 +30,6 @@ const InputOtpToLogin = ({route, navigation}) => {
           const tokenStr = await response?.data?.tokenStr;
           console.log(`tokenStr: ${tokenStr}`);
           await saveToken(tokenStr);
-
           setSnackbarVisible(true);
           setError('');
           navigation.navigate('Home');
